@@ -46,10 +46,11 @@ func HandlerEmailLogin(db *gorm.DB) fiber.Handler {
 		}
 		c.Cookie(&fiber.Cookie{Name: "refresh_token", Value: refreshToken, HTTPOnly: true})
 
+		respondUser := utils.RemoveUserSensitiveData(user)
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"access_token": accessToken,
 			"msg":          "Login success",
-			"user":         user,
+			"user":         respondUser,
 		})
 	}
 }
@@ -79,8 +80,9 @@ func RegisterUserByEmail(db *gorm.DB) fiber.Handler {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
 		}
 
+		respondUser := utils.RemoveUserSensitiveData(user)
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-			"user": user,
+			"user": respondUser,
 			"msg":  "Create User Successfully",
 		})
 	}
