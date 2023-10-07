@@ -8,6 +8,7 @@ import (
 	"chicchat/database"
 	"chicchat/middlewares"
 	"chicchat/models"
+	"chicchat/routes"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -37,6 +38,10 @@ func main() {
 		middlewares.WebSocketMiddleware(rooms),
 		middlewares.RoomAuth(),
 		controllers.WebSocketHandler(rooms))
+
+	// Register routes
+	routes.UserRoute(app, db)
+	routes.AuthRoute(app, db)
 
 	log.Fatal(app.Listen("localhost:8080"))
 }
