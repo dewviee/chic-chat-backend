@@ -10,19 +10,19 @@ import (
 	"github.com/gofiber/websocket/v2"
 )
 
-func WebSocketMiddleware(rooms map[string]*models.Room) fiber.Handler {
+func WebSocketMiddleware(rooms map[string]*models.RoomWebSocket) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		roomID := c.Params("id")
 		if _, exists := rooms[roomID]; !exists {
 			// Create a new room if it doesn't exist
-			rooms[roomID] = &models.Room{
+			rooms[roomID] = &models.RoomWebSocket{
 				ID:        roomID,
 				Clients:   make(map[*websocket.Conn]bool),
 				Broadcast: make(chan []byte),
 			}
 
 			// Start a goroutine to handle room broadcasting
-			go func(room *models.Room) {
+			go func(room *models.RoomWebSocket) {
 				for {
 					message := <-room.Broadcast
 					room.Mu.Lock()

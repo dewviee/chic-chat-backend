@@ -3,16 +3,24 @@
 package main
 
 import (
+	"chicchat/config"
 	"chicchat/controllers"
+	"chicchat/database"
 	"chicchat/middlewares"
 	"chicchat/models"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	godotenv.Load("./config/.env")
+
+	db := database.ConnectDB(config.GetMySqlDSN())
+	database.MigratingDatabase(db)
+
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
@@ -22,7 +30,7 @@ func main() {
 	}))
 
 	// Create a map to store rooms
-	rooms := make(map[string]*models.Room)
+	rooms := make(map[string]*models.RoomWebSocket)
 
 	// Use the WebSocket handler
 	app.Get("/room/:id",
