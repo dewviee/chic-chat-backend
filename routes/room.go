@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Room(app *fiber.App, rooms map[string]*models.Room) {
+func Room(app *fiber.App, rooms map[string]*models.RoomWebSocket) {
 	// app.Get("/room/:room", controllers.Room(rooms))
 	// app.Get("/room/:room/:id", controllers.ConnectToRoom(rooms))
 }

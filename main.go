@@ -22,7 +22,7 @@ func main() {
 	}))
 
 	// Create a map to store rooms
-	rooms := make(map[string]*models.Room)
+	rooms := make(map[string]*models.RoomWebSocket)
 
 	// Use the WebSocket handler
 	app.Get("/room/:id",

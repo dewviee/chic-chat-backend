@@ -16,7 +16,7 @@ type MessagePayload struct {
 	Message string `json:"message"`
 }
 
-func WebSocketHandler(rooms map[string]*models.Room) fiber.Handler {
+func WebSocketHandler(rooms map[string]*models.RoomWebSocket) fiber.Handler {
 	return websocket.New(func(c *websocket.Conn) {
 		roomID := c.Params("id")
 		room := rooms[roomID] // Get the room based on roomID

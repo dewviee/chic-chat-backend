@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/websocket/v2"
 )
 
-type Room struct {
+type RoomWebSocket struct {
 	ID        string
 	Clients   map[*websocket.Conn]bool
 	Broadcast chan []byte
