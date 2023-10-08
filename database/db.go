@@ -21,5 +21,6 @@ func ConnectDB(dsn string) *gorm.DB {
 func MigratingDatabase(db *gorm.DB) {
 	db.AutoMigrate(
 		models.Room{},
+		models.User{},
 	)
 }

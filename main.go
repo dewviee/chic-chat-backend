@@ -4,10 +4,9 @@ package main
 
 import (
 	"chicchat/config"
-	"chicchat/controllers"
 	"chicchat/database"
-	"chicchat/middlewares"
 	"chicchat/models"
+	"chicchat/routes"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -32,11 +31,10 @@ func main() {
 	// Create a map to store rooms
 	rooms := make(map[string]*models.RoomWebSocket)
 
-	// Use the WebSocket handler
-	app.Get("/room/:id",
-		middlewares.WebSocketMiddleware(rooms),
-		middlewares.RoomAuth(),
-		controllers.WebSocketHandler(rooms))
+	// Register routes
+	routes.UserRoute(app, db)
+	routes.AuthRoute(app, db)
+	routes.Room(app, db, rooms)
 
 	log.Fatal(app.Listen("localhost:8080"))
 }
