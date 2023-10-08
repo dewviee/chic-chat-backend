@@ -2,8 +2,11 @@ package controllers
 
 import (
 	"chicchat/models"
+	"chicchat/utils"
 	"errors"
+	"strconv"
 
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
@@ -25,4 +28,50 @@ func CreateUser(db *gorm.DB, user *models.User) error {
 		return err
 	}
 	return nil
+}
+
+func GetUser(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		stringUserID := c.Params("id")
+		userID, err := strconv.Atoi(stringUserID)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": err.Error()})
+		}
+
+		var user models.User
+		err = db.Where("id = ?", userID).First(&user).Error
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"msg": err.Error()})
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
+		}
+		return c.Status(200).JSON(fiber.Map{
+			"user": utils.RemoveUserSensitiveData(user),
+			"msg":  "Get user successfully"})
+	}
+}
+
+func UpdateUser(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var user models.User
+		err := c.BodyParser(&user)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": err.Error()})
+		}
+
+		if user.Password != "" {
+			user.Password, err = utils.HashPassword(user.Password)
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
+			}
+		}
+		err = db.Model(&user).Where("id = ?", user.ID).Updates(&user).Error
+
+		respondUser := utils.RemoveUserSensitiveData(user)
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"user": respondUser,
+			"msg":  "Update user successfully",
+		})
+	}
 }
