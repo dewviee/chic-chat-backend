@@ -32,9 +32,9 @@ func main() {
 	rooms := make(map[string]*models.RoomWebSocket)
 
 	// Register routes
-	routes.UserRoute(app, db)
 	routes.AuthRoute(app, db)
 	routes.Room(app, db, rooms)
+	routes.UserRoute(app, db)
 
 	log.Fatal(app.Listen("localhost:8080"))
 }
