@@ -27,11 +27,18 @@ func WebSocketHandler(rooms map[string]*models.RoomWebSocket) fiber.Handler {
 			c.Close()
 			return
 		}
+
+		if len(room.Clients) > 2 {
+			log.Printf("Client disconnected from room %s", room.ID)
+			return
+		}
+
 		room.Mu.Lock()
 		room.Clients[c] = true
 		room.Mu.Unlock()
 
 		log.Printf("Client connected to room %s", room.ID)
+		log.Printf("Client room %s have %d people", room.ID, len(room.Clients))
 
 		defer func() {
 			room.Mu.Lock()
@@ -55,10 +62,33 @@ func WebSocketHandler(rooms map[string]*models.RoomWebSocket) fiber.Handler {
 				break
 			}
 
-			log.Printf("Received message from user '%s' in room '%s'", message.Message, room.ID)
+			log.Printf("Received message from user in room '%s'", room.ID)
 
 			// Broadcast the message to all clients in the room
 			room.Broadcast <- byteMessage
 		}
 	})
+}
+
+func GetRoomPeopleCount(rooms map[string]*models.RoomWebSocket) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		roomID := c.Params("id")
+		room := rooms[roomID]
+
+		if room == nil {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "Room not found",
+			})
+		}
+
+		if len(room.Clients) >= 2 {
+			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+				"message": "Room is full",
+			})
+		}
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": "Room Ready to connect",
+		})
+	}
 }
