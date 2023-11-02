@@ -10,11 +10,11 @@ import (
 )
 
 type LoginRequest struct {
-	Email    string `json:"email"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-func HandlerEmailLogin(db *gorm.DB) fiber.Handler {
+func HandlerUserLogin(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req LoginRequest
 		err := c.BodyParser(&req)
@@ -23,7 +23,7 @@ func HandlerEmailLogin(db *gorm.DB) fiber.Handler {
 		}
 
 		var user models.User
-		err = db.Where("email = ?", req.Email).First(&user).Error
+		err = db.Where("username = ?", req.Username).First(&user).Error
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Account not found"})
@@ -31,7 +31,7 @@ func HandlerEmailLogin(db *gorm.DB) fiber.Handler {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
 		}
 
-		if !(user.Email == req.Email && utils.CheckPasswordHash(user.Password, req.Password)) {
+		if !(user.Username == req.Username && utils.CheckPasswordHash(user.Password, req.Password)) {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Incorrect email or password"})
 		}
 
