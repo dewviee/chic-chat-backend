@@ -11,9 +11,11 @@ import (
 	"github.com/gofiber/websocket/v2"
 )
 
-type MessagePayload struct {
-	Sender  string `json:"sender"`
-	Message string `json:"message"`
+type Payload struct {
+	Sender    string `json:"sender"`
+	Type      string `json:"type"`
+	Message   string `json:"message"`
+	PublicKey string `json:"key"`
 }
 
 func WebSocketHandler(rooms map[string]*models.RoomWebSocket) fiber.Handler {
@@ -55,7 +57,7 @@ func WebSocketHandler(rooms map[string]*models.RoomWebSocket) fiber.Handler {
 				break
 			}
 
-			var message MessagePayload
+			var message Payload
 			err = json.Unmarshal(byteMessage, &message)
 			if err != nil {
 				log.Println("JSON unmarshal error:", err)
@@ -64,7 +66,13 @@ func WebSocketHandler(rooms map[string]*models.RoomWebSocket) fiber.Handler {
 
 			log.Printf("Received message from user in room '%s'", room.ID)
 
-			// Broadcast the message to all clients in the room
+			if message.Type == "public_key" {
+				// Broadcast the message to all clients in the room
+				log.Println("sender:", message.Sender)
+				log.Println("type:", message.Type)
+				log.Println("message:", message.Message)
+				log.Println("public_key:", message.PublicKey)
+			}
 			room.Broadcast <- byteMessage
 		}
 	})
