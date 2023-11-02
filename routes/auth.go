@@ -8,6 +8,6 @@ import (
 )
 
 func AuthRoute(app *fiber.App, db *gorm.DB) {
-	app.Post("/auth/register/email", controllers.RegisterUserByEmail(db))
-	app.Post("/auth/login/email", controllers.HandlerUserLogin(db))
+	app.Post("/auth/register", controllers.RegisterUserByEmail(db))
+	app.Post("/auth/login", controllers.HandlerUserLogin(db))
 }
