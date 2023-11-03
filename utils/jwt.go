@@ -29,10 +29,11 @@ func CreateAccessToken(email string, db *gorm.DB) (string, error) {
 	expTime := time.Now().Add(time.Minute * 60 * 3).Unix() // Default exp time should be 15 minute
 	// Create the Claims
 	claims := jwt.MapClaims{
-		"id":    user.ID,
-		"email": email,
-		"type":  "access_token",
-		"exp":   expTime,
+		"id":       user.ID,
+		"email":    email,
+		"username": user.Username,
+		"type":     "access_token",
+		"exp":      expTime,
 	}
 
 	// Create token
