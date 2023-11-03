@@ -66,13 +66,6 @@ func WebSocketHandler(rooms map[string]*models.RoomWebSocket) fiber.Handler {
 
 			log.Printf("Received message from user in room '%s'", room.ID)
 
-			if message.Type == "public_key" {
-				// Broadcast the message to all clients in the room
-				log.Println("sender:", message.Sender)
-				log.Println("type:", message.Type)
-				log.Println("message:", message.Message)
-				log.Println("public_key:", message.PublicKey)
-			}
 			room.Broadcast <- byteMessage
 		}
 	})
