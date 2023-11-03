@@ -13,7 +13,6 @@ func Room(app *fiber.App, db *gorm.DB, rooms map[string]*models.RoomWebSocket) {
 	// Use the WebSocket handler
 	app.Get("/room/:id",
 		middlewares.WebSocketMiddleware(rooms),
-		middlewares.RoomAuth(),
 		controllers.WebSocketHandler(rooms))
 	app.Get("/room/:id/check", controllers.GetRoomPeopleCount(rooms))
 }
