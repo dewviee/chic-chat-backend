@@ -4,7 +4,6 @@ package controllers
 
 import (
 	"chicchat/models"
-	"encoding/json"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -57,12 +56,12 @@ func WebSocketHandler(rooms map[string]*models.RoomWebSocket) fiber.Handler {
 				break
 			}
 
-			var message Payload
-			err = json.Unmarshal(byteMessage, &message)
-			if err != nil {
-				log.Println("JSON unmarshal error:", err)
-				break
-			}
+			// var message Payload
+			// err = json.Unmarshal(byteMessage, &message)
+			// if err != nil {
+			// 	log.Println("JSON unmarshal error:", err)
+			// 	break
+			// }
 
 			log.Printf("Received message from user in room '%s'", room.ID)
 
