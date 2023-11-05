@@ -4,6 +4,7 @@ import (
 	"chicchat/models"
 	"chicchat/utils"
 	"errors"
+	"os"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -124,6 +125,15 @@ func GetProfilePicture(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		filename := c.Params("filename")
 		filePath := "./assets/image/" + filename
+
+		// Check if the file exists
+		if _, err := os.Stat(filePath); os.IsNotExist(err) {
+			// File does not exist, send the default image
+			defaultFilePath := "./assets/image/default.png"
+			return c.SendFile(defaultFilePath)
+		}
+
+		// File exists, send the requested file
 		return c.SendFile(filePath)
 	}
 }

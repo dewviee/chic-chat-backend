@@ -68,6 +68,7 @@ func RegisterUserByEmail(db *gorm.DB) fiber.Handler {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
 		}
+		user.ProfilePicture = "./assets/image/default.png"
 
 		err = CreateUser(db, &user)
 		if err != nil {
