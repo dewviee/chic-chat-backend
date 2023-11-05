@@ -14,13 +14,30 @@ import (
 // CreateImageFile creates a new image file in the assets/image folder
 // name.file_extension
 // Example: image.png
-func CreateImageFile(file []byte, name string) error {
-	checkFolderExist("./assets/image")
-	filePath := "./assets/image/" + name
-	if err := os.WriteFile(filePath, file, 0644); err != nil {
-		return err
+func CreateImageFile(file []byte, userProfile userProfile) (string, error) {
+	folderPath := "./assets/image"
+	filePath := fmt.Sprintf("%s/profile_%v.png", folderPath, userProfile.ID)
+
+	// Check if the file already exists
+	if _, err := os.Stat(filePath); err == nil {
+		// File exists, so remove it
+		if err := os.Remove(filePath); err != nil {
+			return "", err
+		}
 	}
-	return nil
+
+	// Create the folder if it doesn't exist
+	err := checkFolderExist(folderPath)
+	if err != nil {
+		return "", err
+	}
+
+	// Write the new file
+	if err := os.WriteFile(filePath, file, 0644); err != nil {
+		return "", err
+	}
+
+	return filePath, nil
 }
 
 // Delete Image file in the assets/image folder

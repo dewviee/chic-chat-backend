@@ -23,6 +23,6 @@ func RemoveUserSensitiveData(user models.User) respondUser {
 	newUser.Phone = user.Phone
 	newUser.CreatedAt = user.CreatedAt
 	newUser.UpdatedAt = user.UpdatedAt
-	newUser.ProfilePictureName = user.ProfilePictureName
+	newUser.ProfilePictureName = user.ProfilePicture
 	return newUser
 }

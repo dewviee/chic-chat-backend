@@ -75,3 +75,44 @@ func UpdateUser(db *gorm.DB) fiber.Handler {
 		})
 	}
 }
+
+func UploadProfilePicture(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		token, err := utils.GetBearerToken(c)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": err.Error()})
+		}
+
+		userProfile, err := utils.GetUserProfileFromToken(token)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": err.Error()})
+		}
+
+		file, err := c.FormFile("profile_picture")
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": err.Error()})
+		}
+
+		fileByte, err := utils.ConvertImageFileToBytes(file)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
+		}
+
+		filePath, err := utils.CreateImageFile(fileByte, userProfile)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
+		}
+
+		var updateData models.User
+		updateData.ProfilePicture = filePath
+		err = db.Model(&models.User{}).Where("id = ?", userProfile.ID).Updates(&updateData).Error
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
+		}
+
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+			"msg":  "Create profile picture successfully",
+			"user": utils.RemoveUserSensitiveData(updateData),
+		})
+	}
+}
