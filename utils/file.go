@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"time"
 )
 
 // CreateImageFile creates a new image file in the assets/image folder
@@ -16,7 +17,7 @@ import (
 // Example: image.png
 func CreateImageFile(file []byte, userProfile userProfile) (string, error) {
 	folderPath := "./assets/image"
-	filePath := fmt.Sprintf("%s/profile_%v.png", folderPath, userProfile.ID)
+	filePath := fmt.Sprintf("%s/profile_%s_%v.png", folderPath, userProfile.Username, time.Now().Unix())
 
 	// Check if the file already exists
 	if _, err := os.Stat(filePath); err == nil {

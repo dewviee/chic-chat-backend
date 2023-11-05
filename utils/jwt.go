@@ -13,8 +13,9 @@ import (
 )
 
 type userProfile struct {
-	ID    uint
-	Email string
+	ID       uint
+	Email    string
+	Username string
 }
 
 func CreateAccessToken(email string, db *gorm.DB) (string, error) {
@@ -151,6 +152,12 @@ func GetUserProfileFromToken(tokenString string) (userProfile, error) {
 		return user, fmt.Errorf("user email not found in token")
 	}
 	user.Email = userEmail
+
+	username, ok := claims["username"].(string)
+	if !ok {
+		return user, fmt.Errorf("user email not found in token")
+	}
+	user.Username = username
 
 	return user, nil
 }

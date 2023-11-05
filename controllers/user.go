@@ -67,6 +67,9 @@ func UpdateUser(db *gorm.DB) fiber.Handler {
 			}
 		}
 		err = db.Model(&user).Where("id = ?", user.ID).Updates(&user).Error
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
+		}
 
 		respondUser := utils.RemoveUserSensitiveData(user)
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -114,5 +117,13 @@ func UploadProfilePicture(db *gorm.DB) fiber.Handler {
 			"msg":  "Create profile picture successfully",
 			"user": utils.RemoveUserSensitiveData(updateData),
 		})
+	}
+}
+
+func GetProfilePicture(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		filename := c.Params("filename")
+		filePath := "./assets/image/" + filename
+		return c.SendFile(filePath)
 	}
 }
