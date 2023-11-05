@@ -17,7 +17,12 @@ import (
 // Example: image.png
 func CreateImageFile(file []byte, userProfile userProfile) (string, error) {
 	folderPath := "./assets/image"
-	filePath := fmt.Sprintf("%s/profile_%s_%v.png", folderPath, userProfile.Username, time.Now().Unix())
+
+	fileName, err := RandomStringFromText(userProfile.Email)
+	if err != nil {
+		return "", err
+	}
+	filePath := fmt.Sprintf("%s/profile_%s_%v.png", folderPath, fileName, time.Now().Unix())
 
 	// Check if the file already exists
 	if _, err := os.Stat(filePath); err == nil {
@@ -28,7 +33,7 @@ func CreateImageFile(file []byte, userProfile userProfile) (string, error) {
 	}
 
 	// Create the folder if it doesn't exist
-	err := checkFolderExist(folderPath)
+	err = checkFolderExist(folderPath)
 	if err != nil {
 		return "", err
 	}
