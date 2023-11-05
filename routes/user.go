@@ -10,8 +10,6 @@ import (
 func UserRoute(app *fiber.App, db *gorm.DB) {
 	app.Put("/user", controllers.UpdateUser(db))
 	app.Get("/user/:id", controllers.GetUser(db))
-	app.Get("/user/picture/:id", func(c *fiber.Ctx) error {
-		id := c.Params("id")
-		return c.SendFile("./assets/pictures/" + id + ".png")
-	})
+	app.Get("/user/picture/:filename", controllers.GetProfilePicture(db))
+	app.Post("/user/picture", controllers.UploadProfilePicture(db))
 }

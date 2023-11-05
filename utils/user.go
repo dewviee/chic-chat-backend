@@ -6,12 +6,13 @@ import (
 )
 
 type respondUser struct {
-	ID        uint       `json:"id"`
-	Username  string     `json:"username"`
-	Email     string     `json:"email"`
-	Phone     string     `json:"phone"`
-	CreatedAt *time.Time `json:"created_at"`
-	UpdatedAt *time.Time `json:"updated_at"`
+	ID             uint       `json:"id"`
+	Username       string     `json:"username"`
+	Email          string     `json:"email"`
+	Phone          string     `json:"phone"`
+	CreatedAt      *time.Time `json:"created_at"`
+	UpdatedAt      *time.Time `json:"updated_at"`
+	ProfilePicture string     `json:"profile_picture"`
 }
 
 func RemoveUserSensitiveData(user models.User) respondUser {
@@ -22,5 +23,6 @@ func RemoveUserSensitiveData(user models.User) respondUser {
 	newUser.Phone = user.Phone
 	newUser.CreatedAt = user.CreatedAt
 	newUser.UpdatedAt = user.UpdatedAt
+	newUser.ProfilePicture = user.ProfilePicture
 	return newUser
 }

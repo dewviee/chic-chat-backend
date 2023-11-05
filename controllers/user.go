@@ -4,6 +4,7 @@ import (
 	"chicchat/models"
 	"chicchat/utils"
 	"errors"
+	"os"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -67,11 +68,72 @@ func UpdateUser(db *gorm.DB) fiber.Handler {
 			}
 		}
 		err = db.Model(&user).Where("id = ?", user.ID).Updates(&user).Error
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
+		}
 
 		respondUser := utils.RemoveUserSensitiveData(user)
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"user": respondUser,
 			"msg":  "Update user successfully",
 		})
+	}
+}
+
+func UploadProfilePicture(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		token, err := utils.GetBearerToken(c)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": err.Error()})
+		}
+
+		userProfile, err := utils.GetUserProfileFromToken(token)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": err.Error()})
+		}
+
+		file, err := c.FormFile("profile_picture")
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": err.Error()})
+		}
+
+		fileByte, err := utils.ConvertImageFileToBytes(file)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
+		}
+
+		filePath, err := utils.CreateImageFile(fileByte, userProfile)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
+		}
+
+		var updateData models.User
+		updateData.ProfilePicture = filePath
+		err = db.Model(&models.User{}).Where("id = ?", userProfile.ID).Updates(&updateData).Error
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
+		}
+
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+			"msg":  "Create profile picture successfully",
+			"user": utils.RemoveUserSensitiveData(updateData),
+		})
+	}
+}
+
+func GetProfilePicture(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		filename := c.Params("filename")
+		filePath := "./assets/image/" + filename
+
+		// Check if the file exists
+		if _, err := os.Stat(filePath); os.IsNotExist(err) {
+			// File does not exist, send the default image
+			defaultFilePath := "./assets/image/default.png"
+			return c.SendFile(defaultFilePath)
+		}
+
+		// File exists, send the requested file
+		return c.SendFile(filePath)
 	}
 }
