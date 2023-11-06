@@ -8,7 +8,7 @@ services:
       context: ./
       dockerfile: Dockerfile.database
     environment:
-      - MYSQL_ROOT_PASSWORD=sql445566
+      - MYSQL_ROOT_PASSWORD=
     ports:
       - 3307:3306
     volumes:
