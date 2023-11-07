@@ -63,24 +63,12 @@ func RegisterUserByEmail(db *gorm.DB) fiber.Handler {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": err.Error()})
 		}
 
-		token, err := utils.GetBearerToken(c)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": err.Error()})
-		}
-		userProfile, err := utils.GetUserProfileFromToken(token)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": err.Error()})
-		}
-		if userProfile.ID != user.ID {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"msg": "Unauthorized"})
-		}
-
 		user.Provider = "email"
 		user.Password, err = utils.HashPassword(user.Password)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
 		}
-		user.ProfilePicture = "./assets/image/default.png"
+		user.ProfilePicture = "./image/default.png"
 
 		err = CreateUser(db, &user)
 		if err != nil {

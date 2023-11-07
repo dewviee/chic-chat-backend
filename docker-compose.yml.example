@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  database:
+    container_name: chic-chat-database
+    image: chic-chat-database
+    build:
+      context: ./
+      dockerfile: Dockerfile.database
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+    ports:
+      - 3307:3306
+    volumes:
+      - ./mysql:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    networks:
+      - chic-chat-frontend_chic-chat-networks
+  backend:
+    container_name: chic-chat-backend
+    image: chic-chat-backend
+    build: 
+      context: ./
+      dockerfile: Dockerfile
+
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8080
+      - DB_USER=root
+      - DB_PASSWORD=
+      - DB_HOST=chic-chat-database
+      - DB_PORT=3306
+      - DB_NAME=chic-chat
+      - JWT_SECRET_KEY=
+    ports:
+      - 8080:8080
+    user: nonroot:nonroot
+    restart: always
+    networks:
+      - chic-chat-frontend_chic-chat-networks
+    
+networks:
+  chic-chat-frontend_chic-chat-networks:
+    external: true
